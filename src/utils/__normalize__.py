@@ -14,6 +14,7 @@ def first_pass(file, target_lufs):
 
     if is_audio_file(file)['is_audio_file']:
     # TO-DO: and has_lenght_gte_3s is True
+    # TO-DO: if not has_lenght_gte_3s, fill with white noise
         ffmpeg_command = f'''ffmpeg -hide_banner -nostdin -i {file} -af loudnorm=I={target_lufs}:dual_mono=true:TP=-1.5:LRA=11:print_format=json -f null -'''
         ffmpeg_output = check_output(ffmpeg_command, stderr = STDOUT, shell = True).decode('utf-8')
 
