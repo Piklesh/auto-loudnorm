@@ -1,20 +1,27 @@
 from pathlib import Path
-from subprocess import (check_output, run, STDOUT)
-from __validate__ import is_audio_file
+from subprocess import (check_output, STDOUT)
+from __validate__ import (is_audio_file, has_length_gte_3s)
 from json import loads
 from re import search
 from os.path import getsize
-import librosa
+from math import ceil
 
 
 REGEX_EXPRESSION = r'\{(\r.*|\n.*)+[}$]'
 
 
+# TO-DO: search the default values for this metrics
+MEASURED_I = 0
+MEASURED_TP = 0
+MEASURED_LRA = 0
+MEASURED_THRESH = 0
+OFFSET = 0
+
+
 def first_pass(file, target_lufs):
 
-    if is_audio_file(file)['is_audio_file']:
-    # TO-DO: and has_lenght_gte_3s is True
-    # TO-DO: if not has_lenght_gte_3s, fill with white noise
+    if (is_audio_file(file)['is_audio_file'] and has_length_gte_3s(file)):
+    # TO-DO: if not has_lenght_gte_3s, fill with fill_audio_length()
         ffmpeg_command = f'''ffmpeg -hide_banner -nostdin -i {file} -af loudnorm=I={target_lufs}:dual_mono=true:TP=-1.5:LRA=11:print_format=json -f null -'''
         ffmpeg_output = check_output(ffmpeg_command, stderr = STDOUT, shell = True).decode('utf-8')
 
@@ -40,5 +47,4 @@ def second_pass(file, target_lufs, output_file):
     ffmpeg_output = check_output(ffmpeg_command, stderr = STDOUT, shell = True).decode('utf-8')
 
     # TO-DO: IF new_size > old_size print warning file_size
-    # TO-DO: 
     return ffmpeg_output
