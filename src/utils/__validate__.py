@@ -1,24 +1,28 @@
 import subprocess
 import json
 import string
+from librosa.core.audio import get_duration
 
 
 class GraceffulyGetDictKey(string.Formatter):
     """
     Function description.
 
-    ### Parameters
+    Parameters
+    ----------
     file : `string`
 
-    ### Return
+    Return
+    ------
     Returns a `dict` containing the file name and a boolen if file is audio or not.
 
-    ### Usage example
+    Usage example
+    -------------
         >>> data = {'name': 'Marcos', 'age': 23}
         >>> graceffuly = GraceffulyGetDictKey()
         >>> result = graceffuly.format('{name}, {age}, {hair_color}', **data)
         >>> print(result)
-    Marcos, 23, ?
+        Marcos, 23, ?
 
     """
 
@@ -49,16 +53,19 @@ def is_audio_file(file):
     """
     Function description.
 
-    ### Parameters
+    Parameters
+    ----------
     file : `string`
 
-    ### Return
+    Return
+    ------
     Returns a `dict` containing the file name and a boolen if file is audio or not.
 
-    ### Usage example
+    Usage example
+    -------------
         >>> iam_audio = is_audio_file('misc/audio_file_1.txt')
         >>> print()
-    {'file': 'misc/audio_file_1.txt', 'is_audio_file': False}
+        {'file': 'misc/audio_file_1.txt', 'is_audio_file': False}
 
     """
 
@@ -82,5 +89,7 @@ def is_audio_file(file):
     return data
 
 
-def has_lenght_gte_3s(file):
-    ...
+def has_length_gte_3s(file):
+    duration = get_duration(filename = file)
+
+    return True if duration > 3 else False
