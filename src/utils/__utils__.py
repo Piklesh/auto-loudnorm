@@ -1,9 +1,9 @@
+from subprocess import (run, PIPE)
 from pathlib import Path
 from shutil import rmtree
 from librosa.core.audio import get_duration
 from math import ceil
 from os.path import getsize
-from subprocess import (check_output, STDOUT)
 
 
 def file_size(file):
@@ -28,8 +28,6 @@ def delete_file(path):
 
 def generate_txt(file):
     try:
-        path = Path.cwd()
-
         audio_duration = get_duration(filename = file)
         # EBU R128 recommends that audio files be at least 3 seconds duration.
         n_to_duplicate = ceil(3 / audio_duration)
@@ -38,22 +36,30 @@ def generate_txt(file):
             with open(f'files.txt', 'a') as f:
                 f.write(f'file {file}\n')
 
+        return {'message': 'files.txt created.','sucess': True}
+
     except FileNotFoundError:
         return {'file': file, 'error': 'File not found.', 'sucess': False}
 
 
 def fill_audio_length(file):
-    generate_txt(file)
-    delete_directory('misc/temp')
-    make_directory('misc/temp')
+    result = generate_txt(file)
 
-    ffmpeg_command = f'''ffmpeg -f concat -safe 0 -i "files.txt" -c copy -y "misc/temp/file_name_filled.ogg"'''
-    ffmpeg_output = check_output(ffmpeg_command, stderr = STDOUT).decode('utf-8')
+    if result['sucess']:
+        file_name = Path(file).stem
+        file_suffix = Path(file).suffix
 
-    delete_file('files.txt')
-    #print(f'File {file} filled up to 5 seconds and saved at \'misc/temp/{file}_filled.wav\'')
-    #print(0)
-    #return 0
+        delete_directory('misc/temp')
+        make_directory('misc/temp')
+
+        ffmpeg_command = f'''ffmpeg -loglevel quiet -f concat -safe 0 -i "files.txt" -c copy -y "misc/temp/{file_name}_filled{file_suffix}"'''
+        ffmpeg_output = run(args = ffmpeg_command, stdout = PIPE)
+
+        delete_file('files.txt')
+
+        return f'\'{file}\' filled up to 3 seconds and saved at \'misc/temp/{file_name}_filled{file_suffix}\''
+
+    return {'file': file, 'error': 'File not found.', 'sucess': False}
 
 
 def back_normal_length(file):
