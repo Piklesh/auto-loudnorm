@@ -1,5 +1,5 @@
+from subprocess import (run, PIPE)
 from pathlib import Path
-from subprocess import (check_output, STDOUT)
 from __validate__ import (is_audio_file, has_length_gte_3s)
 from __utils__ import (file_size, make_directory)
 from json import loads
@@ -21,20 +21,23 @@ def first_pass(file, target_lufs):
     if (is_audio_file(file)['is_audio_file'] and has_length_gte_3s(file)):
     # TO-DO: if not has_lenght_gte_3s, fill with fill_audio_length()
         ffmpeg_command = f'''ffmpeg -hide_banner -nostdin -i {file} -af loudnorm=I={target_lufs}:dual_mono=true:TP=-1.5:LRA=11:print_format=json -f null -'''
-        ffmpeg_output = check_output(ffmpeg_command, stderr = STDOUT, shell = True).decode('utf-8')
+        ffmpeg_output = run(ffmpeg_command, stderr = PIPE)
+        ffmpeg_output = ffmpeg_output.stderr
+        ffmpeg_output = ffmpeg_output.decode(encoding = 'utf-8')
 
         capture_metrics = search(pattern = REGEX_EXPRESSION, string = ffmpeg_output).group(0)
         metrics = loads(capture_metrics)
         metrics['file_size'] = file_size(file)
 
-        return {'metrics': metrics, 'sucess': True}
+        return {'sucess': True, 'metrics': metrics}
 
-    return {'file': file, 'error': 'Invalid audio file.', 'sucess': False}
+    return {'sucess': False, 'error': 'Invalid audio file.', 'file': file}
 
 
 def second_pass(file, target_lufs, output_folder = 'misc/normalized'):
     make_directory('misc/normalized')
-    file_name = Path(file).name
+
+    file_name = Path(file).stem
     result = first_pass(file, target_lufs)
 
     if result['sucess'] == False:
