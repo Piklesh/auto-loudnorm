@@ -1,10 +1,11 @@
-import subprocess
-import json
-import string
+from subprocess import (run, PIPE)
+from pathlib import Path
 from librosa.core.audio import get_duration
+from json import loads
+from string import Formatter
 
 
-class GraceffulyGetDictKey(string.Formatter):
+class GraceffulyGetDictKey(Formatter):
     """
     Function description.
 
@@ -73,9 +74,10 @@ def is_audio_file(file):
     graceffuly = GraceffulyGetDictKey()
 
     ffprobe_command = f'''ffprobe -hide_banner -i {file} -loglevel quiet -select_streams a -show_entries stream=codec_type -print_format json'''
-    output = subprocess.run(ffprobe_command, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, universal_newlines = True)
-    output = json.loads(output.stdout)
-    graceffuly_output = graceffuly.format('{streams[0][codec_type]}', **output)
+    ffprobe_output = run(args = ffprobe_command, stdout = PIPE)
+    ffprobe_output = loads(ffprobe_output.stdout)
+    
+    graceffuly_output = graceffuly.format('{streams[0][codec_type]}', **ffprobe_output)
 
     if graceffuly_output == '?' or graceffuly_output is None:
         data['file'] = file
