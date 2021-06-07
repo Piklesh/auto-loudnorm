@@ -73,10 +73,10 @@ def is_audio_file(file):
     data = dict()
     graceffuly = GraceffulyGetDictKey()
 
-    ffprobe_command = f'''ffprobe -hide_banner -i {file} -loglevel quiet -select_streams a -show_entries stream=codec_type -print_format json'''
+    ffprobe_command = f'''ffprobe -loglevel quiet -i {file} -select_streams a -show_entries stream=codec_type -print_format json'''
     ffprobe_output = run(args = ffprobe_command, stdout = PIPE)
     ffprobe_output = loads(ffprobe_output.stdout)
-    
+
     graceffuly_output = graceffuly.format('{streams[0][codec_type]}', **ffprobe_output)
 
     if graceffuly_output == '?' or graceffuly_output is None:
