@@ -36,10 +36,10 @@ def generate_txt(file):
             with open(f'files.txt', 'a') as f:
                 f.write(f'file {file}\n')
 
-        return {'message': 'files.txt created.','sucess': True}
+        return {'sucess': True, 'message': 'files.txt created.'}
 
     except FileNotFoundError:
-        return {'file': file, 'error': 'File not found.', 'sucess': False}
+        return {'sucess': False, 'error': 'File not found.', 'file': file}
 
 
 def fill_audio_length(file):
@@ -59,7 +59,7 @@ def fill_audio_length(file):
 
         return f'\'{file}\' filled up to 3 seconds and saved at \'misc/temp/{file_name}_filled{file_suffix}\''
 
-    return {'file': file, 'error': 'File not found.', 'sucess': False}
+    return {'sucess': False, 'error': 'File not found.', 'file': file}
 
 
 def back_normal_length(file):
