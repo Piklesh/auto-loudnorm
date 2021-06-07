@@ -21,7 +21,7 @@ def first_pass(file, target_lufs):
     if (is_audio_file(file)['is_audio_file'] and has_length_gte_3s(file)):
     # TO-DO: if not has_lenght_gte_3s, fill with fill_audio_length()
         ffmpeg_command = f'''ffmpeg -hide_banner -nostdin -i {file} -af loudnorm=I={target_lufs}:dual_mono=true:TP=-1.5:LRA=11:print_format=json -f null -'''
-        ffmpeg_output = run(ffmpeg_command, stderr = PIPE)
+        ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
         ffmpeg_output = ffmpeg_output.stderr
         ffmpeg_output = ffmpeg_output.decode(encoding = 'utf-8')
 
@@ -37,19 +37,18 @@ def first_pass(file, target_lufs):
 def second_pass(file, target_lufs, output_folder = 'misc/normalized'):
     make_directory('misc/normalized')
 
-    file_name = Path(file).stem
+    file_name = Path(file).name
     result = first_pass(file, target_lufs)
 
     if result['sucess'] == False:
-        return {'file': file, 'error': 'Invalid audio file.', 'sucess': False}
+        return {'sucess': False, 'error': 'Invalid audio file.', 'file': file}
 
     metrics = result['metrics']
 
     # TO-DO: default values for measured_I, measured_TP, measured_LRA, measured_thresh
-    # TO-DO: output_file -> output_folder, new file name will be the old file name
     # TO-DO: option to convert or not to .wav, arg to_wav=True
-    ffmpeg_command = f'''ffmpeg -hide_banner -nostdin -i {file} -af loudnorm=I={target_lufs}:TP=-1.5:LRA=11:measured_I={metrics['input_i']}:measured_TP={metrics['input_tp']}:measured_LRA={metrics['input_lra']}:measured_thresh={metrics['input_thresh']}:offset={metrics['target_offset']}:linear=true:print_format=summary -y {output_folder}/{file_name}'''
-    ffmpeg_output = check_output(ffmpeg_command, stderr = STDOUT, shell = True).decode('utf-8')
+    ffmpeg_command = f'''ffmpeg -loglevel quiet -i {file} -af loudnorm=I={target_lufs}:TP=-1.5:LRA=11:measured_I={metrics['input_i']}:measured_TP={metrics['input_tp']}:measured_LRA={metrics['input_lra']}:measured_thresh={metrics['input_thresh']}:offset={metrics['target_offset']}:linear=true:print_format=summary -y {output_folder}/{file_name}'''
+    ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
 
     # TO-DO: IF new_size > old_size print warning file_size
-    return ffmpeg_output
+    return {'sucess': True}
