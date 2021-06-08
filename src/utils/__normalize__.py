@@ -9,14 +9,6 @@ from re import search
 REGEX_EXPRESSION = r'\{(\r.*|\n.*)+[}$]'
 
 
-# TO-DO: search the default values for this metrics
-MEASURED_I = 0
-MEASURED_TP = 0
-MEASURED_LRA = 0
-MEASURED_THRESH = 0
-OFFSET = 0
-
-
 def first_pass(file, target_lufs):
     if (is_audio_file(file)['is_audio_file'] and has_length_gte_3s(file)):
     # TO-DO: if not has_lenght_gte_3s, fill with fill_audio_length()
@@ -35,7 +27,7 @@ def first_pass(file, target_lufs):
 
 
 def second_pass(file, target_lufs, output_folder = 'misc/normalized'):
-    make_directory('misc/normalized')
+    make_directory(output_folder)
 
     file_name = Path(file).name
     result = first_pass(file, target_lufs)
