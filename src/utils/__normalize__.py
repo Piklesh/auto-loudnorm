@@ -38,13 +38,13 @@ def second_pass(file, target_lufs, convert_to_wav = False, output_folder = 'misc
 
     metrics = result['metrics']
 
-    ffmpeg_command = f'''ffmpeg -i {file} -af loudnorm=I={target_lufs}:TP=-1.5:LRA=11:measured_I={metrics['input_i']}:measured_TP={metrics['input_tp']}:measured_LRA={metrics['input_lra']}:measured_thresh={metrics['input_thresh']}:offset={metrics['target_offset']}:linear=true:print_format=summary -y {output_folder}/{file_name}'''
+    ffmpeg_command = f'''ffmpeg -loglevel quiet -i {file} -af loudnorm=I={target_lufs}:TP=-1.5:LRA=11:measured_I={metrics['input_i']}:measured_TP={metrics['input_tp']}:measured_LRA={metrics['input_lra']}:measured_thresh={metrics['input_thresh']}:offset={metrics['target_offset']}:linear=true:print_format=summary -y {output_folder}/{file_name}'''
     ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
 
     if convert_to_wav:
     # TO-DO: capture input sample rate and channels
     # check if ffmpeg by default already capture this
-        ffmpeg_command = f'ffmpeg -i {output_folder}/{file_name} -c:a pcm_s16le -ar 44100 -ac 6 -y {output_folder}/{file_name_without_suffix}.wav'
+        ffmpeg_command = f'''ffmpeg -loglevel quiet -i {output_folder}/{file_name} -c:a pcm_s16le -ar 44100 -ac 6 -y {output_folder}/{file_name_without_suffix}.wav'''
         ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
 
     # TO-DO: IF new_size > old_size print warning file_size
