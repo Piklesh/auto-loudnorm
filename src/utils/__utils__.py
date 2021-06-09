@@ -27,42 +27,51 @@ def delete_file(path):
     Path(path).unlink(missing_ok = True)
 
 
-def generate_txt(file):
-    try:
-        audio_duration = get_duration(filename = file)
-        # EBU R128 recommends that audio files be at least 3 seconds duration.
-        times_to_duplicate = ceil(3 / audio_duration)
+class AudioTools():
 
-        for _ in range(times_to_duplicate):
-            with open(f'files.txt', 'a') as f:
-                f.write(f'file {file}\n')
+    def __init__(self):
+        self.original_audio_duration = ''
+        self.original_file_name = ''
+        self.original_file_suffix = ''
 
-        return {'sucess': True, 'message': 'files.txt created.', 'times_duplicated': times_to_duplicate}
+    def generate_txt(self, file):
+        try:
+            self.original_audio_duration = get_duration(filename = file)
+            self.original_file_name = Path(file).stem
+            self.original_file_suffix = Path(file).suffix
+            # EBU R128 recommends that audio files be at least 3 seconds duration.
+            times_to_duplicate = ceil(3 / self.original_audio_duration)
 
-    except FileNotFoundError:
+            for _ in range(times_to_duplicate):
+                with open(f'files.txt', 'a') as f:
+                    f.write(f'file {file}\n')
+
+            return {'sucess': True, 'message': 'files.txt created.'}
+
+        except FileNotFoundError:
+            return {'sucess': False, 'error': 'File not found.', 'file': file}
+
+
+    def fill_audio_length(self, file):
+        result = self.generate_txt(file)
+
+        if result['sucess']:
+            delete_directory('misc/temp')
+            make_directory('misc/temp')
+
+            # TO-DO: try save files.txt at misc/temp
+            ffmpeg_command = f'''ffmpeg -loglevel quiet -f concat -safe 0 -i "files.txt" -c copy -y "misc/temp/{self.original_file_name}_filled{self.original_file_suffix}"'''
+            ffmpeg_output = run(args = ffmpeg_command, stdout = PIPE)
+
+            delete_file('files.txt')
+
+            return f'\'{file}\' filled up to 3 seconds and saved at \'misc/temp/{self.original_file_name}_filled{self.original_file_suffix}\''
+
         return {'sucess': False, 'error': 'File not found.', 'file': file}
 
 
-def fill_audio_length(file):
-    result = generate_txt(file)
+    def back_normal_length(self, output_folder = 'misc/temp'):
+        filled_file = f'{self.original_file_name}_filled{self.original_file_suffix}'
 
-    if result['sucess']:
-        file_name = Path(file).stem
-        file_suffix = Path(file).suffix
-
-        delete_directory('misc/temp')
-        make_directory('misc/temp')
-
-        # TO-DO: try save files.txt at misc/temp
-        ffmpeg_command = f'''ffmpeg -loglevel quiet -f concat -safe 0 -i "files.txt" -c copy -y "misc/temp/{file_name}_filled{file_suffix}"'''
+        ffmpeg_command = f'''ffmpeg -i "{output_folder}/{filled_file}" -af atrim=0:{self.original_audio_duration} -y "misc/temp/{self.original_file_name}{self.original_file_suffix}"'''
         ffmpeg_output = run(args = ffmpeg_command, stdout = PIPE)
-
-        delete_file('files.txt')
-
-        return f'\'{file}\' filled up to 3 seconds and saved at \'misc/temp/{file_name}_filled{file_suffix}\''
-
-    return {'sucess': False, 'error': 'File not found.', 'file': file}
-
-
-def back_normal_length(file):
-    ...
