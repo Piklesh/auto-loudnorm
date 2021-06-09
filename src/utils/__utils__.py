@@ -4,6 +4,7 @@ from shutil import rmtree
 from librosa.core.audio import get_duration
 from math import ceil
 from os.path import getsize
+from textwrap import dedent
 
 
 def file_size(file):
@@ -30,13 +31,13 @@ def generate_txt(file):
     try:
         audio_duration = get_duration(filename = file)
         # EBU R128 recommends that audio files be at least 3 seconds duration.
-        n_to_duplicate = ceil(3 / audio_duration)
+        times_to_duplicate = ceil(3 / audio_duration)
 
-        for _ in range(n_to_duplicate):
+        for _ in range(times_to_duplicate):
             with open(f'files.txt', 'a') as f:
                 f.write(f'file {file}\n')
 
-        return {'sucess': True, 'message': 'files.txt created.'}
+        return {'sucess': True, 'message': 'files.txt created.', 'times_duplicated': times_to_duplicate}
 
     except FileNotFoundError:
         return {'sucess': False, 'error': 'File not found.', 'file': file}
@@ -52,6 +53,7 @@ def fill_audio_length(file):
         delete_directory('misc/temp')
         make_directory('misc/temp')
 
+        # TO-DO: try save files.txt at misc/temp
         ffmpeg_command = f'''ffmpeg -loglevel quiet -f concat -safe 0 -i "files.txt" -c copy -y "misc/temp/{file_name}_filled{file_suffix}"'''
         ffmpeg_output = run(args = ffmpeg_command, stdout = PIPE)
 
