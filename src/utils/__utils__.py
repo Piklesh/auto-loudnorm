@@ -64,7 +64,13 @@ class AudioTools():
             make_directory('misc/temp')
 
             # TO-DO: try save files.txt at misc/temp
-            ffmpeg_command = f'''ffmpeg -loglevel quiet -f concat -safe 0 -i "files.txt" -y "misc/temp/{self.filled_file_name}{self.filled_file_suffix}"'''
+            ffmpeg_command = f'''ffmpeg                         \
+                                    -loglevel quiet             \
+                                    -f concat                   \
+                                    -safe 0                     \
+                                    -i "files.txt"              \
+                                    -y "misc/temp/{self.filled_file_name}{self.filled_file_suffix}" \
+                                '''
             ffmpeg_output = run(args = ffmpeg_command, stdout = PIPE)
 
             delete_file('files.txt')
