@@ -1,5 +1,4 @@
 from subprocess import (run, PIPE)
-from pathlib import Path
 from librosa.core.audio import get_duration
 from json import loads
 from string import Formatter
@@ -24,7 +23,6 @@ class GraceffulyGetDictKey(Formatter):
         >>> result = graceffuly.format('{name}, {age}, {hair_color}', **data)
         >>> print(result)
         Marcos, 23, ?
-
     """
 
     def __init__(self, missing = '?', bad_fmt = '!'):
@@ -67,13 +65,18 @@ def is_audio_file(file):
         >>> iam_audio = is_audio_file('misc/audio_file_1.txt')
         >>> print()
         {'file': 'misc/audio_file_1.txt', 'is_audio_file': False}
-
     """
 
     data = dict()
     graceffuly = GraceffulyGetDictKey()
 
-    ffprobe_command = f'''ffprobe -loglevel quiet -i {file} -select_streams a -show_entries stream=codec_type -print_format json'''
+    ffprobe_command = f'''ffprobe                               \
+                            -loglevel quiet                     \
+                            -i {file}                           \
+                            -select_streams a                   \
+                            -show_entries stream=codec_type     \
+                            -print_format json                  \
+                        '''
     ffprobe_output = run(args = ffprobe_command, stdout = PIPE)
     ffprobe_output = loads(ffprobe_output.stdout)
 
