@@ -30,9 +30,11 @@ def delete_file(path):
 class AudioTools():
 
     def __init__(self):
-        self.original_audio_duration = ''
+        self.original_audio_duration = 0
         self.original_file_name = ''
         self.original_file_suffix = ''
+        self.filled_file_name = ''
+        self.filled_file_suffix = ''
 
     def generate_txt(self, file):
         try:
@@ -54,13 +56,15 @@ class AudioTools():
 
     def fill_audio_length(self, file):
         result = self.generate_txt(file)
+        self.filled_file_name = f'{self.original_file_name}_filled'
+        self.filled_file_suffix = self.original_file_suffix
 
         if result['sucess']:
             delete_directory('misc/temp')
             make_directory('misc/temp')
 
             # TO-DO: try save files.txt at misc/temp
-            ffmpeg_command = f'''ffmpeg -loglevel quiet -f concat -safe 0 -i "files.txt" -c copy -y "misc/temp/{self.original_file_name}_filled{self.original_file_suffix}"'''
+            ffmpeg_command = f'''ffmpeg -loglevel quiet -f concat -safe 0 -i "files.txt" -y "misc/temp/{self.filled_file_name}{self.filled_file_suffix}"'''
             ffmpeg_output = run(args = ffmpeg_command, stdout = PIPE)
 
             delete_file('files.txt')
@@ -71,7 +75,7 @@ class AudioTools():
 
 
     def back_normal_length(self, output_folder = 'misc/temp'):
-        filled_file = f'{self.original_file_name}_filled{self.original_file_suffix}'
+        filled_file = f'{self.filled_file_name}{self.filled_file_suffix}'
 
         ffmpeg_command = f'''ffmpeg -i "{output_folder}/{filled_file}" -af atrim=0:{self.original_audio_duration} -y "misc/temp/{self.original_file_name}{self.original_file_suffix}"'''
         ffmpeg_output = run(args = ffmpeg_command, stdout = PIPE)
