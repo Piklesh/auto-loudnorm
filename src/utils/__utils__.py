@@ -4,7 +4,7 @@ from shutil import rmtree
 from librosa.core.audio import get_duration
 from math import ceil
 from os.path import getsize
-from textwrap import dedent
+from json import loads
 
 
 def file_size(file):
@@ -12,7 +12,9 @@ def file_size(file):
         return getsize(file)
 
     except FileNotFoundError:
-        return {'file': file, 'error': 'File not found.', 'sucess': False}
+        return {'sucess': False,
+                'message': 'File not found.',
+                'file': file}
 
 
 def make_directory(path):
@@ -42,16 +44,20 @@ class AudioTools():
             self.original_file_name = Path(file).stem
             self.original_file_suffix = Path(file).suffix
             # EBU R128 recommends that audio files be at least 3 seconds duration.
-            times_to_duplicate = ceil(3 / self.original_audio_duration)
+            self.times_to_duplicate = ceil(3 / self.original_audio_duration)
+            self.new_duration = self.original_audio_duration * self.times_to_duplicate
 
-            for _ in range(times_to_duplicate):
+            for _ in range(self.times_to_duplicate):
                 with open(f'files.txt', 'a') as f:
                     f.write(f'file {file}\n')
 
-            return {'sucess': True, 'message': 'files.txt created.'}
+            return {'sucess': True,
+                    'message': 'files.txt created.'}
 
         except FileNotFoundError:
-            return {'sucess': False, 'error': 'File not found.', 'file': file}
+            return {'sucess': False,
+                    'message': 'File not found.',
+                    'file': file}
 
 
     def fill_audio_length(self, file):
@@ -75,9 +81,15 @@ class AudioTools():
 
             delete_file('files.txt')
 
-            return f'\'{file}\' filled up to 3 seconds and saved at \'misc/temp/{self.original_file_name}_filled{self.original_file_suffix}\''
+            return {'sucess': True,
+                    'message': 'File filled up to 3 seconds and saved at \'misc/temp\'',
+                    'file': f'{self.original_file_name}_filled{self.original_file_suffix}',
+                    'original_duration': self.original_audio_duration,
+                    'new_duration': self.new_duration}
 
-        return {'sucess': False, 'error': 'File not found.', 'file': file}
+        return {'sucess': False,
+                'message': 'File not found.',
+                'file': file}
 
 
     def back_normal_length(self, output_folder = 'misc/temp'):
@@ -85,3 +97,12 @@ class AudioTools():
 
         ffmpeg_command = f'''ffmpeg -i "{output_folder}/{filled_file}" -af atrim=0:{self.original_audio_duration} -y "misc/temp/{self.original_file_name}{self.original_file_suffix}"'''
         ffmpeg_output = run(args = ffmpeg_command, stdout = PIPE)
+
+    
+    def get_audio_infos(file):
+        ffprobe_command = '''
+        '''
+        ffprobe_output = run(args = ffprobe_command, stdout = PIPE)
+        #-select_streams a -show_entries stream=codec_type,codec_name,bit_rate,channels,sample_rate -print_format json
+        return loads(ffprobe_output.stdout)
+
