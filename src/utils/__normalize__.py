@@ -19,16 +19,17 @@ class Normalize():
         self.filled_file_suffix = ''
 
     def first_pass(self, file, target_lufs):
+        _file_ = Path(file)
 
-        if not has_length_gte_3s(file):
+        if not has_length_gte_3s(_file_):
             tools = AudioTools()
-            tools.fill_audio_length(file)
+            tools.fill_audio_length(_file_)
 
-        if (is_audio_file(file)['is_audio_file'] and has_length_gte_3s(file)):
+        if (is_audio_file(_file_)['is_audio_file'] and has_length_gte_3s(_file_)):
             ffmpeg_command = f'''ffmpeg                             \
                                     -hide_banner                    \
                                     -nostdin                        \
-                                    -i {file}                       \
+                                    -i "{_file_}"                   \
                                     -af loudnorm=I={target_lufs}    \
                                             :dual_mono=true         \
                                             :TP=-1.5                \
@@ -42,7 +43,7 @@ class Normalize():
 
             capture_metrics = search(pattern = REGEX_EXPRESSION, string = ffmpeg_output).group(0)
             metrics = loads(capture_metrics)
-            metrics['file_size'] = file_size(file)
+            metrics['file_size'] = file_size(_file_)
 
             return {'sucess': True,
                     'message': '',
@@ -50,20 +51,21 @@ class Normalize():
 
         return {'sucess': False,
                 'message': 'Invalid audio file.',
-                'file': file}
+                'file': _file_}
 
 
     def second_pass(self, file, target_lufs, output_folder = 'misc/normalized', convert_to_wav = False):
         make_directory(output_folder)
 
+        _file_ = Path(file)
         file_name = Path(file).name
         file_name_no_suffix = Path(file).stem
-        result = self.first_pass(file, target_lufs)
+        result = self.first_pass(_file_, target_lufs)
 
         if result['sucess'] == False:
             return {'sucess': False,
                     'message': 'Invalid audio file.',
-                    'file': file}
+                    'file': _file_}
 
         metrics = result['metrics']
 
@@ -71,7 +73,7 @@ class Normalize():
 
         ffmpeg_command = f'''ffmpeg                                                 \
                                 -loglevel quiet                                     \
-                                -i {file}                                           \
+                                -i "{_file_}"                                       \
                                 -af loudnorm=I={target_lufs}                        \
                                         :TP=-1.5                                    \
                                         :LRA=11                                     \
@@ -88,10 +90,9 @@ class Normalize():
 
         if convert_to_wav:
         # TO-DO: capture input sample rate and channels
-            # check if ffmpeg by default already capture this
             ffmpeg_command = f'''ffmpeg                                     \
                                     -loglevel quiet                         \
-                                    -i {output_folder}/{file_name}          \
+                                    -i "{output_folder}/{file_name}"        \
                                     -c:a pcm_s16le                          \
                                     -ar 44100                               \
                                     -ac 2                                   \
