@@ -5,6 +5,7 @@ from librosa.core.audio import get_duration
 from math import ceil
 from os.path import getsize
 from json import loads
+from __validate__ import is_audio_file
 
 
 def file_size(file):
@@ -95,14 +96,32 @@ class AudioTools():
     def back_normal_length(self, output_folder = 'misc/temp'):
         filled_file = f'{self.filled_file_name}{self.filled_file_suffix}'
 
-        ffmpeg_command = f'''ffmpeg -i "{output_folder}/{filled_file}" -af atrim=0:{self.original_audio_duration} -y "misc/temp/{self.original_file_name}{self.original_file_suffix}"'''
+        ffmpeg_command = f'''ffmpeg                                          \
+                                -i "{output_folder}/{filled_file}"           \
+                                -af atrim=0:{self.original_audio_duration}   \
+                                -y "misc/temp/{self.original_file_name}{self.original_file_suffix}" \
+                            '''
         ffmpeg_output = run(args = ffmpeg_command, stdout = PIPE)
 
-    
-    def get_audio_infos(file):
-        ffprobe_command = '''
-        '''
-        ffprobe_output = run(args = ffprobe_command, stdout = PIPE)
-        #-select_streams a -show_entries stream=codec_type,codec_name,bit_rate,channels,sample_rate -print_format json
-        return loads(ffprobe_output.stdout)
 
+    def get_audio_infos(self, file):
+
+        if not is_audio_file(file)['is_audio_file']:
+            return {'sucess': False,
+                    'message': 'Invalid audio file.',
+                    'file': file}
+
+        ffprobe_command = f'''ffprobe                       \
+                                    -loglevel quiet         \
+                                    -i {file}               \
+                                    -select_streams a       \
+                                    -show_entries stream=codec_type,codec_name,channels,sample_rate,bit_rate,sample_fmt:format=bit_rate\
+                                    -print_format json      \
+                            '''
+        ffprobe_output = run(args = ffprobe_command, stdout = PIPE)
+        ffprobe_output = loads(ffprobe_output.stdout)
+
+        #ffprobe_output['streams'][0]['bit_rate']
+        #ffprobe_output['format']['bit_rate']
+
+        return loads(ffprobe_output.stdout)
