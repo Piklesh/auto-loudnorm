@@ -71,11 +71,11 @@ def is_audio_file(file):
     data = dict()
     graceffuly = GraceffulyGetDictKey()
 
-    file_path = Path(file)
+    _file_ = Path(file)
 
     ffprobe_command = f'''ffprobe                               \
                             -loglevel quiet                     \
-                            -i "{file_path}"                    \
+                            -i "{_file_}"                    \
                             -select_streams a                   \
                             -show_entries                       \
                                 stream=codec_type               \
@@ -87,18 +87,19 @@ def is_audio_file(file):
     graceffuly_output = graceffuly.format('{streams[0][codec_type]}', **ffprobe_output)
 
     if graceffuly_output == '?' or graceffuly_output is None:
-        data['file'] = file
+        data['file'] = _file_
         data['is_audio_file'] = False
 
         return data
 
-    data['file'] = file
+    data['file'] = _file_
     data['is_audio_file'] = True
 
     return data
 
 
 def has_length_gte_3s(file):
-    duration = get_duration(filename = file)
+    _file_ = Path(file)
+    duration = get_duration(filename = _file_)
 
     return True if duration > 3 else False
