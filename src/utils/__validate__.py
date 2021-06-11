@@ -1,3 +1,4 @@
+from pathlib import Path
 from subprocess import (run, PIPE)
 from librosa.core.audio import get_duration
 from json import loads
@@ -70,11 +71,14 @@ def is_audio_file(file):
     data = dict()
     graceffuly = GraceffulyGetDictKey()
 
+    file_path = Path(file)
+
     ffprobe_command = f'''ffprobe                               \
                             -loglevel quiet                     \
-                            -i {file}                           \
+                            -i "{file_path}"                    \
                             -select_streams a                   \
-                            -show_entries stream=codec_type     \
+                            -show_entries                       \
+                                stream=codec_type               \
                             -print_format json                  \
                         '''
     ffprobe_output = run(args = ffprobe_command, stdout = PIPE)
