@@ -13,91 +13,94 @@ REGEX_EXPRESSION = r'\{(\r.*|\n.*)+[}$]'
 class Normalize():
 
     def __init__(self):
+        self.full_path = ''
+        self.directory = ''
+        self.file_name = ''
+        self.file_name_no_suffix = ''
+        self.target_lufs = 0
+        self.metrics = ''
         self.original_audio_duration = 0
-        self.original_file_name = ''
-        self.original_file_suffix = ''
-        self.filled_file_name = ''
-        self.filled_file_suffix = ''
+        self.output_folder = ''
+
 
     def first_pass(self, file, target_lufs):
-        _file_ = Path(file)
+        self.full_path = Path(file)
+        self.directory = Path(file).parent
+        self.file_name = Path(file).name
+        self.file_name_no_suffix = Path(file).stem
+        self.target_lufs = target_lufs
 
-        if not has_length_gte_3s(_file_):
+
+        if is_audio_file(self.full_path)['is_audio_file'] and not has_length_gte_3s(self.full_path):
             tools = AudioTools()
-            tools.fill_audio_length(_file_)
+            tools.fill_audio_length(self.full_path)
 
-        if (is_audio_file(_file_)['is_audio_file'] and has_length_gte_3s(_file_)):
-            ffmpeg_command = f'''ffmpeg                             \
-                                    -hide_banner                    \
-                                    -nostdin                        \
-                                    -i "{_file_}"                   \
-                                    -af loudnorm=I={target_lufs}    \
-                                            :dual_mono=true         \
-                                            :TP=-1.5                \
-                                            :LRA=11                 \
-                                            :print_format=json      \
-                                    -f null -                       \
+            self.original_audio_duration = tools.original_audio_duration
+            self.directory = 'misc/filled'
+            self.file_name = f'{tools.filled_file_name}{tools.filled_file_suffix}'
+            self.file_name_no_suffix = tools.filled_file_name
+            self.full_path = f'{self.directory}/{self.file_name}'
+
+
+        if (is_audio_file(self.full_path)['is_audio_file'] and has_length_gte_3s(self.full_path)):
+            ffmpeg_command = f'''ffmpeg                                 \
+                                    -hide_banner                        \
+                                    -nostdin                            \
+                                    -i "{self.full_path}"               \
+                                    -af loudnorm=I={self.target_lufs}:dual_mono=true:TP=-1.5:LRA=11:print_format=json \
+                                    -f null -                           \
                                 '''
             ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
             ffmpeg_output = ffmpeg_output.stderr
             ffmpeg_output = ffmpeg_output.decode(encoding = 'utf-8')
 
             capture_metrics = search(pattern = REGEX_EXPRESSION, string = ffmpeg_output).group(0)
-            metrics = loads(capture_metrics)
-            metrics['file_size'] = file_size(_file_)
+            self.metrics = loads(capture_metrics)
+            self.metrics['file_size'] = file_size(self.full_path)
 
             return {'sucess': True,
-                    'message': '',
-                    'metrics': metrics}
+                    'message': ''}
 
         return {'sucess': False,
                 'message': 'Invalid audio file',
-                'file': _file_}
+                'file': self.full_path}
 
 
-    def second_pass(self, file, target_lufs, output_folder = 'misc/normalized', convert_to_wav = False):
-        make_directory(output_folder)
+    def second_pass(self, file, target_lufs, output_folder = 'misc/temp', convert_to_wav = False):
+        tools = AudioTools()
 
-        _file_ = Path(file)
-        file_name = Path(file).name
-        file_name_no_suffix = Path(file).stem
-        result = self.first_pass(_file_, target_lufs)
+        self.output_folder = output_folder
+        self.original_file_name = Path(file).name
+
+        make_directory(self.output_folder)
+
+        result = self.first_pass(self.full_path, self.target_lufs)
 
         if result['sucess'] == False:
             return {'sucess': False,
                     'message': 'Invalid audio file',
-                    'file': _file_}
+                    'file': self.full_path}
 
-        metrics = result['metrics']
-
-        # back_normal_length()
-
-        ffmpeg_command = f'''ffmpeg                                                 \
-                                -loglevel quiet                                     \
-                                -i "{_file_}"                                       \
-                                -af loudnorm=I={target_lufs}                        \
-                                        :TP=-1.5                                    \
-                                        :LRA=11                                     \
-                                        :measured_I={metrics['input_i']}            \
-                                        :measured_TP={metrics['input_tp']}          \
-                                        :measured_LRA={metrics['input_lra']}        \
-                                        :measured_thresh={metrics['input_thresh']}  \
-                                        :offset={metrics['target_offset']}          \
-                                        :linear=true                                \
-                                        :print_format=summary                       \
-                                -y {output_folder}/{file_name}                      \
+        ffmpeg_command = f'''ffmpeg\
+                                -loglevel quiet\
+                                -i "{self.full_path}"\
+                                -af loudnorm=I={target_lufs}:TP=-1.5:LRA=11:measured_I={self.metrics['input_i']}:measured_TP={self.metrics['input_tp']}:measured_LRA={self.metrics['input_lra']}:measured_thresh={self.metrics['input_thresh']}:offset={self.metrics['target_offset']}:linear=true:print_format=summary\
+                                -y {self.output_folder}/{self.original_file_name}\
                             '''
         ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
 
+        tools.back_normal_length(file = f'{self.output_folder}/{self.original_file_name}',
+                                 original_audio_duration = self.original_audio_duration)
+
         if convert_to_wav:
         # TO-DO: capture input sample rate and channels
-            ffmpeg_command = f'''ffmpeg                                     \
-                                    -loglevel quiet                         \
-                                    -i "{output_folder}/{file_name}"        \
-                                    -c:a pcm_s16le                          \
-                                    -ar 44100                               \
-                                    -ac 2                                   \
-                                    -y {output_folder}/{file_name_no_suffix}.wav   \
+            ffmpeg_command = f'''ffmpeg                                                     \
+                                    -loglevel quiet                                         \
+                                    -i "{self.output_folder}/{self.file_name}"              \
+                                    -c:a pcm_s16le                                          \
+                                    -ar 44100                                               \
+                                    -ac 2                                                   \
+                                    -y {self.output_folder}/{self.file_name_no_sufix}.wav   \
                                 '''
             ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
 
