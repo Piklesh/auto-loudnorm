@@ -5,7 +5,7 @@ from json import loads
 from string import Formatter
 
 
-class GraceffulyGetDictKey(Formatter):
+class KindlyGetDictKey(Formatter):
     """
     Function description.
 
@@ -20,7 +20,7 @@ class GraceffulyGetDictKey(Formatter):
     Usage example
     -------------
         >>> data = {'name': 'Marcos', 'age': 23}
-        >>> graceffuly = GraceffulyGetDictKey()
+        >>> graceffuly = KindlyGetDictKey()
         >>> result = graceffuly.format('{name}, {age}, {hair_color}', **data)
         >>> print(result)
         Marcos, 23, ?
@@ -32,7 +32,7 @@ class GraceffulyGetDictKey(Formatter):
 
     def get_field(self, field_name, args, kwargs):
         try:
-            val = super(GraceffulyGetDictKey, self).get_field(field_name, args, kwargs)
+            val = super(KindlyGetDictKey, self).get_field(field_name, args, kwargs)
         except (KeyError, AttributeError, IndexError):
             val = None, field_name
         return val
@@ -41,7 +41,7 @@ class GraceffulyGetDictKey(Formatter):
         if value == None:
             return self.missing
         try:
-            return super(GraceffulyGetDictKey, self).format_field(value, spec)
+            return super(KindlyGetDictKey, self).format_field(value, spec)
         except ValueError:
             if self.bad_fmt is not None:
                 return self.bad_fmt
@@ -69,13 +69,13 @@ def is_audio_file(file):
     """
 
     data = dict()
-    graceffuly = GraceffulyGetDictKey()
+    graceffuly = KindlyGetDictKey()
 
     _file_ = Path(file)
 
     ffprobe_command = f'''ffprobe                               \
                             -loglevel quiet                     \
-                            -i "{_file_}"                    \
+                            -i "{_file_}"                       \
                             -select_streams a                   \
                             -show_entries                       \
                                 stream=codec_type               \
