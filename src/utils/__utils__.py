@@ -43,7 +43,7 @@ class AudioTools():
         self.filled_file_suffix = ''
 
     def generate_txt(self, file):
-        _file_ = Path(file)
+        _file_ = Path(file).as_posix()
 
         try:
             self.original_audio_duration = get_duration(filename = _file_)
@@ -73,8 +73,7 @@ class AudioTools():
         self.filled_file_suffix = self.original_file_suffix
 
         if result['sucess']:
-            delete_directory('misc/temp')
-            make_directory('misc/temp')
+            make_directory('misc/filled')
 
             # TO-DO: try save files.txt at misc/temp
             ffmpeg_command = f'''ffmpeg                         \
@@ -82,14 +81,14 @@ class AudioTools():
                                     -f concat                   \
                                     -safe 0                     \
                                     -i "files.txt"              \
-                                    -y "misc/temp/{self.filled_file_name}{self.filled_file_suffix}" \
+                                    -y "misc/filled/{self.filled_file_name}{self.filled_file_suffix}" \
                                 '''
             ffmpeg_output = run(args = ffmpeg_command, stdout = PIPE)
 
             delete_file('files.txt')
 
             return {'sucess': True,
-                    'message': 'File filled up to 3 seconds and saved at \'misc/temp\'',
+                    'message': 'File filled up to 3 seconds and saved at \'misc/filled\'',
                     'file': f'{self.original_file_name}_filled{self.original_file_suffix}',
                     'original_duration': self.original_audio_duration,
                     'new_duration': self.new_duration}
@@ -99,15 +98,17 @@ class AudioTools():
                 'file': _file_}
 
 
-    def back_normal_length(self, output_folder = 'misc/temp'):
-        filled_file = f'{self.filled_file_name}{self.filled_file_suffix}'
+    def back_normal_length(self, file, original_audio_duration):
+        make_directory('misc/normalized')
 
-        ffmpeg_command = f'''ffmpeg                                          \
-                                -i "{output_folder}/{filled_file}"           \
-                                -af atrim=0:{self.original_audio_duration}   \
-                                -y "misc/temp/{self.original_file_name}{self.original_file_suffix}" \
+        file_name = f'{Path(file).stem}{Path(file).suffix}'
+
+        ffmpeg_command = f'''ffmpeg\
+                                -i "{file}"\
+                                -af atrim=0:{original_audio_duration}\
+                                -y "misc/normalized/{file_name}"\
                             '''
-        ffmpeg_output = run(args = ffmpeg_command, stdout = PIPE)
+        ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
 
 
     def get_audio_infos(self, file):
