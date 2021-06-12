@@ -2,10 +2,11 @@ from subprocess import (run, PIPE)
 from pathlib import Path
 from shutil import rmtree
 from librosa.core.audio import get_duration
-from math import ceil
+from math import ceil, floor
 from os.path import getsize
 from json import loads
-from __validate__ import is_audio_file
+
+from __validate__ import (KindlyGetDictKey, is_audio_file)
 
 
 def file_size(file):
@@ -16,7 +17,7 @@ def file_size(file):
 
     except FileNotFoundError:
         return {'sucess': False,
-                'message': 'File not found.',
+                'message': 'File not found',
                 'file': _file_}
 
 
@@ -57,11 +58,11 @@ class AudioTools():
                     f.write(f'file {_file_}\n')
 
             return {'sucess': True,
-                    'message': 'files.txt created.'}
+                    'message': 'files.txt created'}
 
         except FileNotFoundError:
             return {'sucess': False,
-                    'message': 'File not found.',
+                    'message': 'File not found',
                     'file': _file_}
 
 
@@ -94,7 +95,7 @@ class AudioTools():
                     'new_duration': self.new_duration}
 
         return {'sucess': False,
-                'message': 'File not found.',
+                'message': 'File not found',
                 'file': _file_}
 
 
@@ -111,23 +112,39 @@ class AudioTools():
 
     def get_audio_infos(self, file):
         _file_ = Path(file)
+        graceffuly = KindlyGetDictKey()
 
         if not is_audio_file(_file_)['is_audio_file']:
             return {'sucess': False,
-                    'message': 'Invalid audio file.',
+                    'message': 'Invalid audio file',
                     'file': _file_}
 
         ffprobe_command = f'''ffprobe                       \
                                     -loglevel quiet         \
-                                    -i "{_file_}"             \
+                                    -i "{_file_}"           \
                                     -select_streams a       \
                                     -show_entries stream=codec_type,codec_name,channels,sample_rate,bit_rate,sample_fmt:format=bit_rate\
                                     -print_format json      \
                             '''
+
         ffprobe_output = run(args = ffprobe_command, stdout = PIPE)
-        ffprobe_output = loads(ffprobe_output.stdout)
+        ffprobe_output = ffprobe_output.stdout
+        ffprobe_output = ffprobe_output.decode(encoding = 'utf-8')
+        ffprobe_output = loads(ffprobe_output)
 
-        #ffprobe_output['streams'][0]['bit_rate']
-        #ffprobe_output['format']['bit_rate']
+        streams_entries = graceffuly.format('{streams[0]}', **ffprobe_output)
+        streams_entries = streams_entries.replace("\'", "\"")
+        streams_entries = loads(streams_entries)
+        format_entries = graceffuly.format('{format}', **ffprobe_output)
+        format_entries = format_entries.replace("\'", "\"")
+        format_entries = loads(format_entries)
 
-        return loads(ffprobe_output.stdout)
+        streams_bitrate = graceffuly.format('{bit_rate}', **streams_entries)
+        format_bitrate = graceffuly.format('{bit_rate}', **format_entries)
+
+        if streams_bitrate == '?':
+            streams_entries['bit_rate'] = int(round(int(format_bitrate) / 1000, 0))
+        else:
+            streams_entries['bit_rate'] = int(round(int(streams_entries['bit_rate']) / 1000, 0))
+
+        return streams_entries
