@@ -1,9 +1,10 @@
 from subprocess import (run, PIPE)
 from pathlib import Path
-from __validate__ import (is_audio_file, has_length_gte_3s)
-from __utils__ import (AudioTools, file_size, make_directory)
 from json import loads
 from re import search
+
+from __validate__ import (is_audio_file, has_length_gte_3s)
+from __utils__ import (AudioTools, file_size, make_directory)
 
 
 REGEX_EXPRESSION = r'\{(\r.*|\n.*)+[}$]'
@@ -50,7 +51,7 @@ class Normalize():
                     'metrics': metrics}
 
         return {'sucess': False,
-                'message': 'Invalid audio file.',
+                'message': 'Invalid audio file',
                 'file': _file_}
 
 
@@ -64,7 +65,7 @@ class Normalize():
 
         if result['sucess'] == False:
             return {'sucess': False,
-                    'message': 'Invalid audio file.',
+                    'message': 'Invalid audio file',
                     'file': _file_}
 
         metrics = result['metrics']
