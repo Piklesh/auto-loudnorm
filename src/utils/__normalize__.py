@@ -2,9 +2,8 @@ from subprocess import (run, PIPE)
 from pathlib import Path
 from json import loads
 from re import search
-
-from __validate__ import (is_audio_file, has_length_gte_3s)
-from __utils__ import (AudioTools, file_size, make_directory)
+from src.utils.__validate__ import (is_audio_file, has_length_gte_3s)
+from src.utils.__utils__ import (AudioTools, file_size, make_directory)
 
 
 REGEX_EXPRESSION = r'\{(\r.*|\n.*)+[}$]'
@@ -66,10 +65,10 @@ class Normalize():
                 'file': self.full_path}
 
 
-    def second_pass(self, file, target_lufs, output_folder = 'misc/temp', convert_to_wav = False):
+    def second_pass(self, file, target_lufs, convert_to_wav = False):
         tools = AudioTools()
 
-        self.output_folder = output_folder
+        self.output_folder = 'misc/temp'
         self.original_file_name = Path(file).name
 
         make_directory(self.output_folder)
