@@ -123,13 +123,13 @@ class AudioTools():
                 'file': _file_}
 
 
-    def back_normal_length(self, file, original_audio_duration):
+    def back_normal_length(self, filled_file, original_audio_duration, output_filename):
         make_directory('misc/normalized')
 
-        file_name = f'{Path(file).stem}{Path(file).suffix}'
+        file_name = f'{Path(output_filename).stem}{Path(output_filename).suffix}'
 
         ffmpeg_command = f'''ffmpeg\
-                                -i "{file}"\
+                                -i "{filled_file}"\
                                 -af atrim=0:{original_audio_duration}\
                                 -y "misc/normalized/{file_name}"\
                             '''
