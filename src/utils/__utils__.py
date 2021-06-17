@@ -1,12 +1,15 @@
-from subprocess import (run, PIPE)
+from subprocess import (run, PIPE, DEVNULL)
 from pathlib import Path
 from shutil import rmtree
 from librosa.core.audio import get_duration
-from math import ceil, floor
+from math import ceil
 from os.path import getsize
 from json import loads
+from src.utils.__validate__ import (KindlyGetDictKey, is_audio_file)
 
-from __validate__ import (KindlyGetDictKey, is_audio_file)
+
+RED = '\033[41m'
+NORMAL = '\033[m'
 
 
 def file_size(file):
@@ -31,6 +34,28 @@ def delete_directory(path):
 
 def delete_file(path):
     Path(path).unlink(missing_ok = True)
+
+
+def check_ffmpeg():
+    command = run(args = 'ffmpeg -version', stdout = DEVNULL, stderr = DEVNULL, shell = True)
+    return_code = command.returncode
+
+    if return_code == 1:
+        print(f'{RED}FFmpeg ERROR: Check if FFmpeg is installed or if are added to PATH{NORMAL}')
+        return False
+
+    return True
+
+
+def check_ffprobe():
+    command = run(args = 'ffprobe -version', stdout = DEVNULL, stderr = DEVNULL, shell = True)
+    return_code = command.returncode
+
+    if return_code == 1:
+        print(f'{RED}FFprobe ERROR: Check if FFprobe is installed or if are added to PATH{NORMAL}')
+        return False
+
+    return True
 
 
 class AudioTools():
