@@ -3,6 +3,7 @@ from subprocess import (run, PIPE)
 from librosa.core.audio import get_duration
 from json import loads
 from string import Formatter
+from pathlib import Path
 
 
 class KindlyGetDictKey(Formatter):
