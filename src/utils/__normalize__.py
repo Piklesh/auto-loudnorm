@@ -73,7 +73,7 @@ class Normalize():
 
         make_directory(self.output_folder)
 
-        result = self.first_pass(self.full_path, self.target_lufs)
+        result = self.first_pass(file = Path(file), target_lufs = target_lufs)
 
         if result['sucess'] == False:
             return {'sucess': False,
@@ -88,8 +88,9 @@ class Normalize():
                             '''
         ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
 
-        tools.back_normal_length(file = f'{self.output_folder}/{self.original_file_name}',
-                                 original_audio_duration = self.original_audio_duration)
+        tools.back_normal_length(filled_file = f'{self.output_folder}/{self.original_file_name}',
+                                 original_audio_duration = self.original_audio_duration,
+                                 output_filename = self.original_file_name)
 
         if convert_to_wav:
         # TO-DO: capture input sample rate and channels
