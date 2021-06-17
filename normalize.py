@@ -11,7 +11,7 @@ if __name__ == '__main__':
     if not check_ffprobe():
         quit()
 
-    parser = ArgumentParser(description = 'Um programa de exemplo.')
+    parser = ArgumentParser(description = 'Script that automates the FFmpeg loudnorm two pass')
 
     parser.add_argument('-file',
                         action = 'store',
