@@ -37,14 +37,11 @@ ffmpeg -i "misc/audio_file.ogg" \
 ## How to use
 
 ```shell
-# Create a directory to clone the project
-mkdir auto-2pass-loudnorm
+# Clone the project
+git clone https://github.com/Multi8000/auto-2pass-loudnorm.git auto-2pass-loudnorm
 
-# Change to the directory that you created
+# Change to the project directory
 cd auto-2pass-loudnorm
-
-# Clone the project into the directory
-git clone https://github.com/Multi8000/auto-2pass-loudnorm.git
 
 # Install the Python modules used in this project
 pip install -r requirements.txt
