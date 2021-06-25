@@ -59,6 +59,5 @@ python normalize.py -file FILE -lufs LUFS [-convert CONVERT]
 # Exemplo de uso
 python normalize.py -file "misc/audio_file.ogg" -lufs -16
 
-# Os arquivos de áudio normalizados serão salvos em
-# auto-2pass-loudnorm/misc/normalized
+# Os arquivos de áudio normalizados serão salvos em './auto-2pass-loudnorm/misc/normalized'
 ```
