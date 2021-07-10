@@ -121,15 +121,16 @@ class AudioTools():
                 'message': f'File {Path(file).name} not found'}
 
 
-    def back_normal_length(self, filled_file, original_audio_duration, output_filename):
-        make_directory(f'{self.core_path}/misc/normalized')
+    def back_normal_length(self, filled_file, original_audio_duration, output_folder, output_filename):
 
         file_name = f'{Path(output_filename).stem}{Path(output_filename).suffix}'
+
+        make_directory(output_folder)
 
         ffmpeg_command = f'''ffmpeg\
                                 -i "{filled_file}"\
                                 -af atrim=0:{original_audio_duration}\
-                                -y "{self.core_path}/misc/normalized/{file_name}"\
+                                -y "{output_folder}/{file_name}"\
                             '''
         ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
 

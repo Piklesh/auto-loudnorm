@@ -28,6 +28,12 @@ if __name__ == '__main__':
                         required = True,
                         help = 'The targed LUFS to normalize the audio file.')
 
+    parser.add_argument('-output',
+                        action = 'store',
+                        dest = 'output',
+                        required = True,
+                        help = 'The output folder to normalized audio file.')
+
     parser.add_argument('-convert',
                         action = 'store',
                         dest = 'convert',
@@ -40,6 +46,7 @@ if __name__ == '__main__':
     normalize = Normalize()
     normalize.second_pass(file = arguments.file,
                           target_lufs = arguments.lufs,
+                          output_folder = arguments.output,
                           convert_to_wav = arguments.convert)
 
     delete_directory(f'{core_path}/misc/filled')

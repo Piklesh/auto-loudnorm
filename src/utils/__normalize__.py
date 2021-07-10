@@ -66,10 +66,10 @@ class Normalize():
                 'message': f'"{Path(file).name}" is a invalid audio file'}
 
 
-    def second_pass(self, file, target_lufs, convert_to_wav = False):
+    def second_pass(self, file, target_lufs, output_folder, convert_to_wav = False):
         tools = AudioTools()
 
-        self.output_folder = f'{self.core_path}/misc/temp'
+        self.output_folder = Path(output_folder).resolve()
         self.original_file_name = Path(file).name
 
         if strtobool(str(convert_to_wav)) == 0:
@@ -78,6 +78,7 @@ class Normalize():
             convert_to_wav = True
 
         make_directory(self.output_folder)
+        make_directory(f'{self.core_path}/misc/temp')
 
         result = self.first_pass(file = Path(file), target_lufs = target_lufs)
 
@@ -89,13 +90,14 @@ class Normalize():
                                 -loglevel quiet\
                                 -i "{self.full_path}"\
                                 -af loudnorm=I={target_lufs}:TP=-1.5:LRA=11:measured_I={self.metrics['input_i']}:measured_TP={self.metrics['input_tp']}:measured_LRA={self.metrics['input_lra']}:measured_thresh={self.metrics['input_thresh']}:offset={self.metrics['target_offset']}:linear=true:print_format=summary\
-                                -y "{self.output_folder}/{self.original_file_name}"\
+                                -y "{self.core_path}/misc/temp/{self.original_file_name}"\
                             '''
         ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
 
-        tools.back_normal_length(filled_file = f'{self.output_folder}/{self.original_file_name}',
+        tools.back_normal_length(filled_file = f'{self.core_path}/misc/temp/{self.original_file_name}',
                                  original_audio_duration = self.original_audio_duration,
-                                 output_filename = self.original_file_name)
+                                 output_filename = self.original_file_name,
+                                 output_folder = self.output_folder)
 
         if convert_to_wav:
         # TO-DO: capture input sample rate and channels
