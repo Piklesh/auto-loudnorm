@@ -6,7 +6,7 @@ That's an **automatic aproach** to *FFmpeg* `loudnorm` audio filter wheres we ne
 
 ```shell
 # First execution
-ffmpeg -i "misc/audio_file.ogg" \
+ffmpeg -i "my_folder/audio_file.ogg" \
        -af loudnorm=I=-16:dual_mono=true:TP=-1.5:LRA=11:print_format=summary \
        -f null -
 
@@ -23,9 +23,9 @@ Normalization Type:        Dynamic
 Target Offset:        -0.5 LU
 
 # Second execution using the audio information returned
-ffmpeg -i "misc/audio_file.ogg" \
+ffmpeg -i "my_folder/audio_file.ogg" \
        -af loudnorm=I=-16:TP=-1.5:LRA=11:measured_I=-27.2:measured_TP=-14.4:measured_LRA=0.1:measured_thresh=-37.7:offset=-0.5:linear=true:print_format=summary \
-       "misc/audio_file_normalized.ogg"
+       "my_folder/audio_file_normalized.ogg"
 ```
 
 ## External requirements
@@ -49,15 +49,14 @@ pip install -r requirements.txt
 
 ```shell
 # Now you can use the `normalize.py`
-python normalize.py -file FILE -lufs LUFS [-convert CONVERT]
+python normalize.py -file FILE -lufs LUFS -output OUTPUT [-convert CONVERT]
 
 -h                   Show help message and exit
 -file FILE           The path of audio file to be normalized
 -lufs LUFS           The target LUFS to normalize the audio file
+-output OUTPUT       The output folder to normalized audio file
 -convert BOOLEAN     Convert the normalized file to .wav format?
 
 # Example of use
-python normalize.py -file "misc/audio_file.ogg" -lufs -16
-
-# The normalized audio files will be saved at './auto-2pass-loudnorm/misc/normalized'
+python normalize.py -file "my_folder/audio_file.ogg" -lufs -16 -output "my_folder/normalized"
 ```

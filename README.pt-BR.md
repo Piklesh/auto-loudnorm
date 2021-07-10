@@ -6,7 +6,7 @@
 
 ```shell
 # Primeira execução
-ffmpeg -i "misc/audio_file.ogg" \
+ffmpeg -i "minha_pasta/audio_file.ogg" \
        -af loudnorm=I=-16:dual_mono=true:TP=-1.5:LRA=11:print_format=summary \
        -f null -
 
@@ -22,10 +22,10 @@ Output Threshold:    -26.2 LUFS
 Normalization Type:        Dynamic
 Target Offset:        -0.5 LU
 
-# Now run the second time using the audio information returned
-ffmpeg -i "misc/audio_file.ogg" \
+# Agora execute a segunda vez usando os valores que foram retornados da primeira execução
+ffmpeg -i "minha_pasta/audio_file.ogg" \
        -af loudnorm=I=-16:TP=-1.5:LRA=11:measured_I=-27.2:measured_TP=-14.4:measured_LRA=0.1:measured_thresh=-37.7:offset=-0.5:linear=true:print_format=summary \
-       "misc/audio_file_normalized.ogg"
+       "minha_pasta/audio_file_normalized.ogg"
 ```
 
 ## Requisitos externos
@@ -49,15 +49,14 @@ pip install -r requirements.txt
 
 ```shell
 # Agora você pode usar o `normalize.py`
-python normalize.py -file FILE -lufs LUFS [-convert CONVERT]
+python normalize.py -file FILE -lufs LUFS -output OUTPUT [-convert CONVERT]
 
--h                   Show help message and exit
--file FILE           The path of audio file to be normalized
--lufs LUFS           The target LUFS to normalize the audio file
--convert BOOLEAN     Convert the normalized file to .wav format?
+-h                   Mostra a mensagem de ajuda e fecha encerra o programa
+-file FILE           O diretório do arquivo de áudio a ser normalizado
+-lufs LUFS           O LUFS que o arquivo de áudio normalizado deve ter
+-output OUTPUT       A pasta que o arquivo de áudio normalizado será colocado
+-convert BOOLEAN     Converter o arquivo de áudio normalizado para o formato .wav?
 
 # Exemplo de uso
-python normalize.py -file "misc/audio_file.ogg" -lufs -16
-
-# Os arquivos de áudio normalizados serão salvos em './auto-2pass-loudnorm/misc/normalized'
+python normalize.py -file "minha_pasta/audio_file.ogg" -lufs -16 -output "minha_pasta/normalizado"
 ```
