@@ -1,3 +1,4 @@
+from pathlib import Path
 from argparse import ArgumentParser
 from src.utils.__utils__ import (check_ffmpeg, check_ffprobe, delete_directory)
 from src.utils.__normalize__ import Normalize
@@ -10,6 +11,8 @@ if __name__ == '__main__':
 
     if not check_ffprobe():
         quit()
+
+    core_path = Path(__file__).parents[0].as_posix()
 
     parser = ArgumentParser(description = 'Script that automates the FFmpeg loudnorm two pass')
 
@@ -39,5 +42,5 @@ if __name__ == '__main__':
                           target_lufs = arguments.lufs,
                           convert_to_wav = arguments.convert)
 
-    delete_directory('misc/filled')
-    delete_directory('misc/temp')
+    delete_directory(f'{core_path}/misc/filled')
+    delete_directory(f'{core_path}/misc/temp')
