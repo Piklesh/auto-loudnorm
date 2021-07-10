@@ -13,15 +13,15 @@ NORMAL = '\033[m'
 
 
 def file_size(file):
-    _file_ = Path(file)
+    i_file = Path(file)
 
     try:
-        return getsize(_file_)
+        return getsize(i_file)
 
     except FileNotFoundError:
         return {'sucess': False,
                 'message': 'File not found',
-                'file': _file_}
+                'file': i_file}
 
 
 def make_directory(path):
@@ -68,19 +68,19 @@ class AudioTools():
         self.filled_file_suffix = ''
 
     def generate_txt(self, file):
-        _file_ = Path(file).as_posix()
+        i_file = Path(file).as_posix()
 
         try:
-            self.original_audio_duration = get_duration(filename = _file_)
-            self.original_file_name = Path(_file_).stem
-            self.original_file_suffix = Path(_file_).suffix
+            self.original_audio_duration = get_duration(filename = i_file)
+            self.original_file_name = Path(i_file).stem
+            self.original_file_suffix = Path(i_file).suffix
             # EBU R128 recommends that audio files be at least 3 seconds duration.
             self.times_to_duplicate = ceil(3 / self.original_audio_duration)
             self.new_duration = self.original_audio_duration * self.times_to_duplicate
 
             for _ in range(self.times_to_duplicate):
                 with open(f'files.txt', 'a') as f:
-                    f.write(f'file {_file_}\n')
+                    f.write(f'file {i_file}\n')
 
             return {'sucess': True,
                     'message': 'files.txt created'}
@@ -88,12 +88,12 @@ class AudioTools():
         except FileNotFoundError:
             return {'sucess': False,
                     'message': 'File not found',
-                    'file': _file_}
+                    'file': i_file}
 
 
     def fill_audio_length(self, file):
-        _file_ = Path(file)
-        result = self.generate_txt(_file_)
+        i_file = Path(file)
+        result = self.generate_txt(i_file)
         self.filled_file_name = f'{self.original_file_name}_filled'
         self.filled_file_suffix = self.original_file_suffix
 
@@ -120,7 +120,7 @@ class AudioTools():
 
         return {'sucess': False,
                 'message': 'File not found',
-                'file': _file_}
+                'file': i_file}
 
 
     def back_normal_length(self, filled_file, original_audio_duration, output_filename):
@@ -137,17 +137,17 @@ class AudioTools():
 
 
     def get_audio_infos(self, file):
-        _file_ = Path(file)
+        i_file = Path(file)
         graceffuly = KindlyGetDictKey()
 
-        if not is_audio_file(_file_)['is_audio_file']:
+        if not is_audio_file(i_file)['is_audio_file']:
             return {'sucess': False,
                     'message': 'Invalid audio file',
-                    'file': _file_}
+                    'file': i_file}
 
         ffprobe_command = f'''ffprobe                       \
                                     -loglevel quiet         \
-                                    -i "{_file_}"           \
+                                    -i "{i_file}"           \
                                     -select_streams a       \
                                     -show_entries stream=codec_type,codec_name,channels,sample_rate,bit_rate,sample_fmt:format=bit_rate\
                                     -print_format json      \
