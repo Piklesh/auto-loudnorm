@@ -20,8 +20,7 @@ def file_size(file):
 
     except FileNotFoundError:
         return {'sucess': False,
-                'message': 'File not found',
-                'file': i_file}
+                'message': f'File {i_file} not found'}
 
 
 def make_directory(path):
@@ -87,8 +86,7 @@ class AudioTools():
 
         except FileNotFoundError:
             return {'sucess': False,
-                    'message': 'File not found',
-                    'file': i_file}
+                    'message': f'File {i_file} not found'}
 
 
     def fill_audio_length(self, file):
@@ -119,8 +117,7 @@ class AudioTools():
                     'new_duration': self.new_duration}
 
         return {'sucess': False,
-                'message': 'File not found',
-                'file': i_file}
+                'message': f'File {i_file} not found'}
 
 
     def back_normal_length(self, filled_file, original_audio_duration, output_filename):
@@ -142,8 +139,7 @@ class AudioTools():
 
         if not is_audio_file(i_file)['is_audio_file']:
             return {'sucess': False,
-                    'message': 'Invalid audio file',
-                    'file': i_file}
+                    'message': f'{i_file} is a invalid audio file'}
 
         ffprobe_command = f'''ffprobe                       \
                                     -loglevel quiet         \
