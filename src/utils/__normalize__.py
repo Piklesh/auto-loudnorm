@@ -62,7 +62,7 @@ class Normalize():
                     'message': 'Audio loudness metrics captured'}
 
         return {'sucess': False,
-                'message': f'{Path(file)} is a invalid audio file'}
+                'message': f'"{Path(file).name}" is a invalid audio file'}
 
 
     def second_pass(self, file, target_lufs, convert_to_wav = False):
@@ -82,8 +82,7 @@ class Normalize():
 
         if result['sucess'] == False:
             return {'sucess': False,
-                    'message': 'Invalid audio file',
-                    'file': self.full_path}
+                    'message': f'"{Path(file).name}" is a invalid audio file'}
 
         ffmpeg_command = f'''ffmpeg\
                                 -loglevel quiet\
@@ -111,4 +110,4 @@ class Normalize():
 
         # TO-DO: IF new_size > old_size print warning file_size
         return {'sucess': True,
-                'message': f'Audio for file {Path(file)} normalized'}
+                'message': f'Audio for file "{Path(file).name}" normalized'}
