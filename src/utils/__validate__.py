@@ -8,7 +8,7 @@ from pathlib import Path
 
 class KindlyGetDictKey(Formatter):
     """
-    Function description.
+    Kindly treats errors when getting a dict key that doesn't exists.
 
     Parameters
     ----------
@@ -33,10 +33,10 @@ class KindlyGetDictKey(Formatter):
 
     def get_field(self, field_name, args, kwargs):
         try:
-            val = super(KindlyGetDictKey, self).get_field(field_name, args, kwargs)
+            value = super(KindlyGetDictKey, self).get_field(field_name, args, kwargs)
         except (KeyError, AttributeError, IndexError):
-            val = None, field_name
-        return val
+            value = None, field_name
+        return value
 
     def format_field(self, value, spec):
         if value == None:
@@ -52,7 +52,7 @@ class KindlyGetDictKey(Formatter):
 
 def is_audio_file(file):
     """
-    Function description.
+    Checks if file is a valid audio file.
 
     Parameters
     ----------
@@ -72,11 +72,11 @@ def is_audio_file(file):
     data = dict()
     graceffuly = KindlyGetDictKey()
 
-    _file_ = Path(file)
+    i_file = Path(file)
 
     ffprobe_command = f'''ffprobe                               \
                             -loglevel quiet                     \
-                            -i "{_file_}"                       \
+                            -i "{i_file}"                       \
                             -select_streams a                   \
                             -show_entries                       \
                                 stream=codec_type               \
@@ -88,19 +88,19 @@ def is_audio_file(file):
     graceffuly_output = graceffuly.format('{streams[0][codec_type]}', **ffprobe_output)
 
     if graceffuly_output == '?' or graceffuly_output is None:
-        data['file'] = _file_
+        data['file'] = i_file
         data['is_audio_file'] = False
 
         return data
 
-    data['file'] = _file_
+    data['file'] = i_file
     data['is_audio_file'] = True
 
     return data
 
 
 def has_length_gte_3s(file):
-    _file_ = Path(file)
-    duration = get_duration(filename = _file_)
+    i_file = Path(file)
+    duration = get_duration(filename = i_file)
 
     return True if duration > 3 else False
