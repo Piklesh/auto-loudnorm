@@ -70,7 +70,6 @@ class Normalize():
         tools = AudioTools()
 
         self.output_folder = f'{self.core_path}/misc/temp'
-        print(self.output_folder)
         self.original_file_name = Path(file).name
 
         if strtobool(str(convert_to_wav)) == 0:
@@ -81,7 +80,6 @@ class Normalize():
         make_directory(self.output_folder)
 
         result = self.first_pass(file = Path(file), target_lufs = target_lufs)
-        print(result)
 
         if result['sucess'] == False:
             return {'sucess': False,
@@ -94,7 +92,6 @@ class Normalize():
                                 -y "{self.output_folder}/{self.original_file_name}"\
                             '''
         ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
-        print(ffmpeg_output.stderr.decode('utf-8'))
 
         tools.back_normal_length(filled_file = f'{self.output_folder}/{self.original_file_name}',
                                  original_audio_duration = self.original_audio_duration,
