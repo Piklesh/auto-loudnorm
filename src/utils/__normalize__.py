@@ -21,6 +21,7 @@ class Normalize():
         self.metrics = ''
         self.original_audio_duration = 0
         self.output_folder = ''
+        self.core_path = Path(__file__).parents[2].as_posix()
 
 
     def first_pass(self, file, target_lufs):
@@ -36,7 +37,7 @@ class Normalize():
             tools.fill_audio_length(self.full_path)
 
             self.original_audio_duration = tools.original_audio_duration
-            self.directory = 'misc/filled'
+            self.directory = f'{self.core_path}/misc/filled'
             self.file_name = f'{tools.filled_file_name}{tools.filled_file_suffix}'
             self.file_name_no_suffix = tools.filled_file_name
             self.full_path = f'{self.directory}/{self.file_name}'
@@ -68,7 +69,8 @@ class Normalize():
     def second_pass(self, file, target_lufs, convert_to_wav = False):
         tools = AudioTools()
 
-        self.output_folder = 'misc/temp'
+        self.output_folder = f'{self.core_path}/misc/temp'
+        print(self.output_folder)
         self.original_file_name = Path(file).name
 
         if strtobool(str(convert_to_wav)) == 0:
@@ -79,6 +81,7 @@ class Normalize():
         make_directory(self.output_folder)
 
         result = self.first_pass(file = Path(file), target_lufs = target_lufs)
+        print(result)
 
         if result['sucess'] == False:
             return {'sucess': False,
@@ -88,9 +91,10 @@ class Normalize():
                                 -loglevel quiet\
                                 -i "{self.full_path}"\
                                 -af loudnorm=I={target_lufs}:TP=-1.5:LRA=11:measured_I={self.metrics['input_i']}:measured_TP={self.metrics['input_tp']}:measured_LRA={self.metrics['input_lra']}:measured_thresh={self.metrics['input_thresh']}:offset={self.metrics['target_offset']}:linear=true:print_format=summary\
-                                -y {self.output_folder}/{self.original_file_name}\
+                                -y "{self.output_folder}/{self.original_file_name}"\
                             '''
         ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
+        print(ffmpeg_output.stderr.decode('utf-8'))
 
         tools.back_normal_length(filled_file = f'{self.output_folder}/{self.original_file_name}',
                                  original_audio_duration = self.original_audio_duration,
@@ -104,7 +108,7 @@ class Normalize():
                                     -c:a pcm_s16le                                          \
                                     -ar 44100                                               \
                                     -ac 2                                                   \
-                                    -y {self.output_folder}/{self.file_name_no_sufix}.wav   \
+                                    -y "{self.output_folder}/{self.file_name_no_sufix}.wav" \
                                 '''
             ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
 

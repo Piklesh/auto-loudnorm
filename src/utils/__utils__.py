@@ -65,7 +65,7 @@ class AudioTools():
         self.original_file_suffix = ''
         self.filled_file_name = ''
         self.filled_file_suffix = ''
-        self.core_path = Path(__file__).parents[2]
+        self.core_path = Path(__file__).parents[2].as_posix()
 
     def generate_txt(self, file):
         i_file = Path(file).as_posix()
@@ -97,7 +97,7 @@ class AudioTools():
         self.filled_file_suffix = self.original_file_suffix
 
         if result['sucess']:
-            make_directory('misc/filled')
+            make_directory(f'{self.core_path}/misc/filled')
 
             # TO-DO: try save files.txt at misc/temp
             ffmpeg_command = f'''ffmpeg                         \
@@ -122,14 +122,14 @@ class AudioTools():
 
 
     def back_normal_length(self, filled_file, original_audio_duration, output_filename):
-        make_directory('misc/normalized')
+        make_directory(f'{self.core_path}/misc/normalized')
 
         file_name = f'{Path(output_filename).stem}{Path(output_filename).suffix}'
 
         ffmpeg_command = f'''ffmpeg\
                                 -i "{filled_file}"\
                                 -af atrim=0:{original_audio_duration}\
-                                -y "misc/normalized/{file_name}"\
+                                -y "{self.core_path}/misc/normalized/{file_name}"\
                             '''
         ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
 
