@@ -5,7 +5,7 @@ from librosa.core.audio import get_duration
 from math import ceil
 from os.path import getsize
 from json import loads
-from __validate__ import (KindlyGetDictKey, is_audio_file)
+from src.utils.__validate__ import (KindlyGetDictKey, is_audio_file)
 
 
 RED = '\033[41m'
