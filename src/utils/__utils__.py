@@ -80,7 +80,7 @@ class AudioTools():
 
             for _ in range(self.times_to_duplicate):
                 with open(f'files.txt', 'a') as f:
-                    f.write(f'file {i_file}\n')
+                    f.write(f'file \'{i_file}\'\n')
 
             return {'sucess': True,
                     'message': 'files.txt created'}
