@@ -3,8 +3,8 @@ from pathlib import Path
 from json import loads
 from re import search
 from distutils.util import strtobool
-from src.utils.__validate__ import (is_audio_file, has_length_gte_3s)
-from src.utils.__utils__ import (AudioTools, file_size, make_directory)
+from __validate__ import (is_audio_file, has_length_gte_3s)
+from __utils__ import (AudioTools, file_size, make_directory)
 
 
 REGEX_EXPRESSION = r'\{(\r.*|\n.*)+[}$]'
