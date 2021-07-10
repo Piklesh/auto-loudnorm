@@ -59,11 +59,10 @@ class Normalize():
             self.metrics['file_size'] = file_size(self.full_path)
 
             return {'sucess': True,
-                    'message': ''}
+                    'message': 'Audio loudness metrics captured'}
 
         return {'sucess': False,
-                'message': 'Invalid audio file',
-                'file': self.full_path}
+                'message': f'{Path(file)} is a invalid audio file'}
 
 
     def second_pass(self, file, target_lufs, convert_to_wav = False):
@@ -112,4 +111,4 @@ class Normalize():
 
         # TO-DO: IF new_size > old_size print warning file_size
         return {'sucess': True,
-                'message': ''}
+                'message': f'Audio for file {Path(file)} normalized'}
