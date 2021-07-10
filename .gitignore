@@ -5,6 +5,9 @@
 # Misc folder
 misc/*
 
+# Temp files
+files.txt
+
 # Visual Studio Code
 .vscode
 
