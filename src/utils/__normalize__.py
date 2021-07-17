@@ -3,6 +3,7 @@ from pathlib import Path
 from json import loads
 from re import search
 from distutils.util import strtobool
+from librosa.core.audio import get_duration
 from src.utils.__validate__ import (is_audio_file, has_length_gte_3s)
 from src.utils.__utils__ import (AudioTools, file_size, make_directory)
 
@@ -44,6 +45,8 @@ class Normalize():
 
 
         if (is_audio_file(self.full_path)['is_audio_file'] and has_length_gte_3s(self.full_path)):
+            self.original_audio_duration = get_duration(filename = file)
+
             ffmpeg_command = f'''ffmpeg                                 \
                                     -hide_banner                        \
                                     -nostdin                            \
