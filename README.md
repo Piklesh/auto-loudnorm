@@ -2,10 +2,10 @@
 
 ## What is this project? :thinking:
 
-That's an **automatic aproach** to *FFmpeg* `loudnorm` audio filter wheres we need to manually execute the filter two times. On the first execution it's captured the audio information. On the second execution we need to use those audio information than loudnorm filter can normalize the audio loudness.
+That's an **automatic aproach** to *FFmpeg* `loudnorm` audio filter wheres we need to manually execute the filter two times. On the first manual execution it's captured the audio information. On the second manual execution we need to use those audio information than loudnorm filter can normalize the audio loudness.
 
 ```shell
-# First execution
+# First manual execution
 ffmpeg -i "my_folder/audio_file.ogg" \
        -af loudnorm=I=-16:dual_mono=true:TP=-1.5:LRA=11:print_format=summary \
        -f null -
@@ -22,7 +22,7 @@ Output Threshold:    -26.2 LUFS
 Normalization Type:        Dynamic
 Target Offset:        -0.5 LU
 
-# Second execution using the audio information returned
+# Second manual execution using the audio information returned
 ffmpeg -i "my_folder/audio_file.ogg" \
        -af loudnorm=I=-16:TP=-1.5:LRA=11:measured_I=-27.2:measured_TP=-14.4:measured_LRA=0.1:measured_thresh=-37.7:offset=-0.5:linear=true:print_format=summary \
        "my_folder/audio_file_normalized.ogg"
