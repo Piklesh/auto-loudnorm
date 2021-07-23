@@ -74,13 +74,13 @@ def is_audio_file(file):
 
     i_file = Path(file)
 
-    ffprobe_command = f'''ffprobe                               \
-                            -loglevel quiet                     \
-                            -i "{i_file}"                       \
-                            -select_streams a                   \
-                            -show_entries                       \
-                                stream=codec_type               \
-                            -print_format json                  \
+    ffprobe_command = f'''ffprobe \
+                            -loglevel quiet \
+                            -i "{i_file}" \
+                            -select_streams a \
+                            -show_entries \
+                                stream=codec_type \
+                            -print_format json \
                         '''
     ffprobe_output = run(args = ffprobe_command, stdout = PIPE)
     ffprobe_output = loads(ffprobe_output.stdout)

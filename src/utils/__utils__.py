@@ -100,11 +100,11 @@ class AudioTools():
             make_directory(f'{self.core_path}/misc/filled')
 
             # TO-DO: try save files.txt at misc/temp
-            ffmpeg_command = f'''ffmpeg                         \
-                                    -loglevel quiet             \
-                                    -f concat                   \
-                                    -safe 0                     \
-                                    -i "files.txt"              \
+            ffmpeg_command = f'''ffmpeg \
+                                    -loglevel quiet \
+                                    -f concat \
+                                    -safe 0 \
+                                    -i "files.txt" \
                                     -y "{self.core_path}/misc/filled/{self.filled_file_name}{self.filled_file_suffix}" \
                                 '''
             ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
@@ -127,10 +127,10 @@ class AudioTools():
 
         make_directory(output_folder)
 
-        ffmpeg_command = f'''ffmpeg\
-                                -i "{filled_file}"\
-                                -af atrim=0:{original_audio_duration}\
-                                -y "{output_folder}/{file_name}"\
+        ffmpeg_command = f'''ffmpeg \
+                                -i "{filled_file}" \
+                                -af atrim=0:{original_audio_duration} \
+                                -y "{output_folder}/{file_name}" \
                             '''
         ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
 
@@ -143,12 +143,12 @@ class AudioTools():
             return {'sucess': False,
                     'message': f'{Path(file).name} is a invalid audio file'}
 
-        ffprobe_command = f'''ffprobe                       \
-                                    -loglevel quiet         \
-                                    -i "{i_file}"           \
-                                    -select_streams a       \
-                                    -show_entries stream=codec_type,codec_name,channels,sample_rate,bit_rate,sample_fmt:format=bit_rate\
-                                    -print_format json      \
+        ffprobe_command = f'''ffprobe \
+                                    -loglevel quiet \
+                                    -i "{i_file}" \
+                                    -select_streams a \
+                                    -show_entries stream=codec_type,codec_name,channels,sample_rate,bit_rate,sample_fmt:format=bit_rate \
+                                    -print_format json \
                             '''
 
         ffprobe_output = run(args = ffprobe_command, stdout = PIPE)

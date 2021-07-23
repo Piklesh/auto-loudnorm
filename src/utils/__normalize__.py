@@ -47,12 +47,12 @@ class Normalize():
         if (is_audio_file(self.full_path)['is_audio_file'] and has_length_gte_3s(self.full_path)):
             self.original_audio_duration = get_duration(filename = file)
 
-            ffmpeg_command = f'''ffmpeg                                 \
-                                    -hide_banner                        \
-                                    -nostdin                            \
-                                    -i "{self.full_path}"               \
+            ffmpeg_command = f'''ffmpeg \
+                                    -hide_banner \
+                                    -nostdin \
+                                    -i "{self.full_path}" \
                                     -af loudnorm=I={self.target_lufs}:dual_mono=true:TP=-1.5:LRA=11:print_format=json \
-                                    -f null -                           \
+                                    -f null - \
                                 '''
             ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
             ffmpeg_output = ffmpeg_output.stderr
@@ -89,11 +89,11 @@ class Normalize():
             return {'sucess': False,
                     'message': f'"{Path(file).name}" is a invalid audio file'}
 
-        ffmpeg_command = f'''ffmpeg\
-                                -loglevel quiet\
-                                -i "{self.full_path}"\
-                                -af loudnorm=I={target_lufs}:TP=-1.5:LRA=11:measured_I={self.metrics['input_i']}:measured_TP={self.metrics['input_tp']}:measured_LRA={self.metrics['input_lra']}:measured_thresh={self.metrics['input_thresh']}:offset={self.metrics['target_offset']}:linear=true:print_format=summary\
-                                -y "{self.core_path}/misc/temp/{self.original_file_name}"\
+        ffmpeg_command = f'''ffmpeg \
+                                -loglevel quiet \
+                                -i "{self.full_path}" \
+                                -af loudnorm=I={target_lufs}:TP=-1.5:LRA=11:measured_I={self.metrics['input_i']}:measured_TP={self.metrics['input_tp']}:measured_LRA={self.metrics['input_lra']}:measured_thresh={self.metrics['input_thresh']}:offset={self.metrics['target_offset']}:linear=true:print_format=summary \
+                                -y "{self.core_path}/misc/temp/{self.original_file_name}" \
                             '''
         ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
 
@@ -104,12 +104,12 @@ class Normalize():
 
         if convert_to_wav:
         # TO-DO: capture input sample rate and channels
-            ffmpeg_command = f'''ffmpeg                                                     \
-                                    -loglevel quiet                                         \
-                                    -i "{self.output_folder}/{self.file_name}"              \
-                                    -c:a pcm_s16le                                          \
-                                    -ar 44100                                               \
-                                    -ac 2                                                   \
+            ffmpeg_command = f'''ffmpeg \
+                                    -loglevel quiet \
+                                    -i "{self.output_folder}/{self.file_name}" \
+                                    -c:a pcm_s16le \
+                                    -ar 44100 \
+                                    -ac 2 \
                                     -y "{self.output_folder}/{self.file_name_no_sufix}.wav" \
                                 '''
             ffmpeg_output = run(args = ffmpeg_command, stderr = PIPE)
